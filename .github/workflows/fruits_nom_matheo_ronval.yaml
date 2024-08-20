@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         fruit: [pomme, banane, orange, fraise]
-        nom: [Michel, Marie, Alice]
+        nom: [Matheo, Alexandre, Francois]
     steps:
       - name: Afficher la combinaison
         run: |

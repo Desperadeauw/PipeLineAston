@@ -1,0 +1,18 @@
+name: Matrix fruits
+
+# Le workflow s'exécute manuellement
+on: 
+  workflow_dispatch:
+
+jobs:
+  generer-combinaisons:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        fruit: [pomme, banane, orange, fraise]
+        nom: [Michel, Marie, Alice]
+    steps:
+      - name: Afficher la combinaison
+        run: |
+          echo "${{ matrix.nom }} mange une ${{ matrix.fruit }}, et il/elle adore ça !"
+        continue-on-error: false 

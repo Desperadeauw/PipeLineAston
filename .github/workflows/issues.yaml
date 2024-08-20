@@ -1,0 +1,12 @@
+name: Issues
+
+on: 
+  issues:
+    types: [opened]
+
+jobs:
+  issue_message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: issues
+        run: echo "Issues detectées"

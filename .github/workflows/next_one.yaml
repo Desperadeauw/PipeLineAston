@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Envoyer un message
-        run: echo "Message du workflow suivant"
+        run: echo "Message du workflow suivant.."

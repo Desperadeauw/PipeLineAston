@@ -1,6 +1,5 @@
 name: Matrix fruits
 
-# Le workflow s'exécute manuellement
 on: 
   workflow_dispatch:
 

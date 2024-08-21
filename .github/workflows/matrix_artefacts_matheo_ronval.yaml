@@ -1,4 +1,4 @@
-name: Matrix & artefacts
+name: Matrix & artefacts.
 
 on:
   push:

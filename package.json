@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-project",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p dist && echo 'Build complete' > dist/output.txt"
+  },
+  "description": "projetIC",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "coursIC"
+  },
+  "author": "",
+  "license": "ISC"
+}

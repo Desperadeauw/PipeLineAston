@@ -1,0 +1,115 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - 'features/*'
+      - 'hotfix/*'
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - 'features/*'
+  issues:
+    types: [assigned]
+
+jobs:
+  protect-main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Protéger la branche main
+        run: echo "Configurer la protection de la branche main via l'interface GitHub."
+
+  # Job 2: Protection de la branche develop
+  protect-develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Protéger la branche develop
+        run: echo "Configurer la protection de la branche develop via l'interface GitHub."
+
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Conventional Commits
+        uses: webiny/action-conventional-commits@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  test-pipeline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14, 16]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test
+
+  test-pipeline-coverage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14, 16]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Save coverage report
+        run: mv coverage/coverage-final.json coverage.txt
+        continue-on-error: true
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage.txt
+
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create branch
+        run: |
+          branch_name="features/issue-${{ github.event.issue.number }}"
+          git checkout develop
+          git checkout -b $branch_name
+          git push origin $branch_name
+
+  delete-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Delete branch
+        run: |
+          branch_to_delete=$(echo $GITHUB_REF | sed 's/refs\/heads\///')
+          if [[ $branch_to_delete == features/* ]]; then
+            git push origin --delete $branch_to_delete
+          fi

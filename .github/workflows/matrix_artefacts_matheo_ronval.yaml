@@ -1,4 +1,4 @@
-name: Matrix & Artefacts
+name: Matrix & artefacts
 
 on:
   push:
@@ -11,45 +11,54 @@ on:
       - develop
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  build_project:
+    runs-on: ${{ matrix.operating_system }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node: [16, 18, 20, 22]
+        operating_system: [ubuntu-latest, windows-latest, macos-latest]
+        node_version: [16, 18, 20, 22]
         exclude:
-          - os: ubuntu-latest
-            node: 16
-          - os: windows-latest
-            node: 18
-          - os: macos-latest
-            node: 20
+          - operating_system: ubuntu-latest
+            node_version: 16
+          - operating_system: windows-latest
+            node_version: 18
+          - operating_system: macos-latest
+            node_version: 20
         include:
-          - os: windows-latest
-            node: 22
+          - operating_system: windows-latest
+            node_version: 22
       max-parallel: 2
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
-      - run: npm install
-      - run: npm run build
-      - name: Upload artifact
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build-${{ matrix.os }}-${{ matrix.node }}
-          path: dist
+          name: app-build-${{ matrix.operating_system }}-node-${{ matrix.node_version }}
+          path: ./dist
 
-  conditional-job:
-    needs: build 
-    if: github.ref == 'refs/heads/main'
+  deploy_application:
+    needs: build_project
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/download-artifact@v3
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
         with:
-          name: build-ubuntu-latest-18
-      - name: Simulate deployment
-        run: echo "On déploie l'application"
+          name: app-build-ubuntu-latest-node-18
+
+      - name: Execute deployment
+        run: echo "Déploiement de l'application en cours..."

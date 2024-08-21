@@ -1,0 +1,57 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [16, 18, 20, 22]
+        exclude:
+          - os: ubuntu-latest
+            node: 16
+          - os: windows-latest
+            node: 18
+          - os: macos-latest
+            node: 20
+        include:
+          - os: windows-latest
+            node: 22
+      max-parallel: 2
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.node }}
+          path: dist
+
+  conditional-job:
+    needs: build 
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: build-ubuntu-latest-18
+      - name: Simulate deployment
+        run: echo "On déploie l'application"

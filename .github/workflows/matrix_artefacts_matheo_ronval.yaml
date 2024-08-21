@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Matrix & Artefacts
 
 on:
   push:
@@ -9,8 +9,6 @@ on:
     branches:
       - main
       - develop
-  schedule:
-    - cron: '0 0 * * 1'
 
 jobs:
   build:
@@ -32,15 +30,15 @@ jobs:
       max-parallel: 2
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
       - run: npm install
       - run: npm run build
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-${{ matrix.os }}-${{ matrix.node }}
           path: dist
@@ -50,7 +48,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: build-ubuntu-latest-18
       - name: Simulate deployment
